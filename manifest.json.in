@@ -1,0 +1,56 @@
+{
+  "manifest_version": 1,
+  "id": "netbird",
+  "i18n": {
+    "default": {"name": "NetBird", "description": "Connect OneKVM to a NetBird network."},
+    "zh": {"name": "NetBird", "description": "将 OneKVM 连接到 NetBird 网络。"},
+    "zh-TW": {"name": "NetBird", "description": "將 OneKVM 連接到 NetBird 網路。"}
+  },
+  "version": "@VERSION@",
+  "api_version": 2,
+  "architecture": "@ARCH@",
+  "kind": "service",
+  "entrypoint": "bin/onekvm-netbird-controller",
+  "kernel_modules": ["wireguard", "nf_tables"],
+  "permissions": ["network", "network-admin"],
+  "capabilities": [],
+  "services": [{
+    "id": "netbird",
+    "i18n": {
+      "default": {"name": "NetBird client", "description": "Private NetBird network client."},
+      "zh": {"name": "NetBird 客户端", "description": "私有 NetBird 网络客户端。"},
+      "zh-TW": {"name": "NetBird 用戶端", "description": "私有 NetBird 網路用戶端。"}
+    }
+  }],
+  "icon": {"source": "custom", "path": "web/logo.svg"},
+  "page": {"title": "NetBird", "renderer": "vue", "entrypoint": "web/page.js", "icon": {"source": "custom", "path": "web/logo.svg"}},
+  "controller": {"runtime": "executable", "entrypoint": "bin/onekvm-netbird-controller", "arguments": ["--controller"], "timeout_seconds": 30},
+  "methods": {"status": {}, "connect": {}, "disconnect": {}, "logout": {}},
+  "settings_schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["setup_key", "hostname", "management_url", "wireguard_port"],
+    "properties": {
+      "setup_key": {
+        "type": "string", "format": "password", "title": "Setup key", "default": "", "maxLength": 4096,
+        "i18n": {"default": "Setup key", "zh": "设置密钥", "zh-TW": "設定金鑰"}
+      },
+      "hostname": {
+        "type": "string", "title": "Device hostname", "default": "onekvm", "maxLength": 253,
+        "i18n": {"default": "Device hostname", "zh": "设备主机名", "zh-TW": "裝置主機名稱"}
+      },
+      "management_url": {
+        "type": "string", "format": "address", "title": "Management server URL", "default": "", "maxLength": 2048,
+        "i18n": {"default": "Management server URL", "zh": "管理服务器 URL", "zh-TW": "管理伺服器 URL"}
+      },
+      "wireguard_port": {
+        "type": "integer", "title": "WireGuard port", "default": 51820, "minimum": 0, "maximum": 65535,
+        "i18n": {"default": "WireGuard port", "zh": "WireGuard 端口", "zh-TW": "WireGuard 連接埠"}
+      }
+    }
+  },
+  "secret_fields": ["/setup_key"],
+  "memory_budget": "48M",
+  "resource_limits": {"memory_max": "64M", "cpu_quota": "60%", "tasks_max": 128, "limit_nofile": 2048},
+  "healthcheck": {"type": "exec", "command": ["bin/onekvm-netbird-controller", "--health"], "timeout_seconds": 5}
+}
