@@ -36,7 +36,7 @@ ONEKVM_COMPONENT_SRCREV ??= ""
 SRC_URI = "\
     ${ONEKVM_COMPONENT_GIT_URI};name=extension;destsuffix=extension \
     git://github.com/netbirdio/netbird.git;protocol=https;nobranch=1;name=upstream;destsuffix=${GO_SRCURI_DESTSUFFIX} \
-    file://0001-netbird-do-not-log-expected-sso-probe-as-error.patch;patchdir=${GO_SRCURI_DESTSUFFIX} \
+    file://0001-netbird-do-not-log-expected-sso-probe-as-error.patch;patchdir=src/${GO_IMPORT} \
 "
 SRCREV_extension = "${ONEKVM_COMPONENT_SRCREV}"
 SRCREV_upstream = "0780a806f2cc2e8a6a51782cfffe0591b7c3fa9c"
