@@ -1,8 +1,8 @@
 SUMMARY = "OneKVM NetBird service extension"
 HOMEPAGE = "https://netbird.io/"
-LICENSE = "MIT & BSD-3-Clause"
+LICENSE = "GPL-3.0-only & BSD-3-Clause"
 LIC_FILES_CHKSUM = "\
-    file://LICENSE;md5=4b4d2ea45bb882ef18ae0022ccc1f9ab \
+    file://LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464 \
     file://src/github.com/netbirdio/netbird/LICENSE;md5=4b0c257c801017efd43194ff660ef008 \
     file://pkg/mod/codeberg.org/cunicu/circl@v0.0.0-20230801113412-fec58fc7b5f6/LICENSE;md5=71d73ee3b01fb1fe8499f3da2593ecc7;spdx=BSD-3-Clause \
     file://pkg/mod/github.com/aws/aws-sdk-go-v2@v1.38.3/internal/sync/singleflight/LICENSE;md5=bdc234595bc2fe370918f5de5077c8e9;spdx=BSD-3-Clause \
