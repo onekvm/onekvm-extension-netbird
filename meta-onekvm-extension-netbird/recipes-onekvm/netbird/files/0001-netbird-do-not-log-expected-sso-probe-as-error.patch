@@ -1,0 +1,67 @@
+From 84f35d71e4d6f0c31c66698d449145882a61f0fa Mon Sep 17 00:00:00 2001
+From: OneKVM <dev@onekvm.local>
+Date: Thu, 6 Aug 2026 07:10:00 +0800
+Subject: [PATCH] netbird: do not log expected SSO probe as error
+
+Before starting an interactive SSO flow the daemon probes whether the peer's
+existing public key is already registered. A new peer necessarily receives
+PermissionDenied, then Login creates the OAuth device flow. Treat that
+specific state as debug output instead of emitting alarming errors.
+
+An empty setup key/JWT in loginAttempt is the same probe. Keep real setup-key,
+SSO, network, and management failures at their existing severity.
+
+Upstream-Status: Pending
+---
+ client/server/server.go          | 13 +++++++++++--
+ shared/management/client/grpc.go |  6 +++++-
+ 2 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/client/server/server.go b/client/server/server.go
+index aaab5cc..a51b54a 100644
+--- a/client/server/server.go
++++ b/client/server/server.go
+@@ -345,7 +345,11 @@ func (s *Server) connectWithRetryRuns(ctx context.Context, profileConfig *profil
+ 	}
+ 
+ 	if err := backoff.Retry(runOperation, backOff); err != nil {
+-		log.Errorf("operation failed: %v", err)
++		if status, ok := gstatus.FromError(err); ok && status.Code() == codes.PermissionDenied {
++			log.Debugf("client is waiting for interactive login: %v", err)
++		} else {
++			log.Errorf("operation failed: %v", err)
++		}
+ 	}
+ 	// giveUpChan is closed by the function-scope defer.
+ }
+@@ -385,6 +389,11 @@ func (s *Server) loginAttempt(ctx context.Context, setupKey, jwtToken string) (i
+ 		if isAuthError {
+ 			log.Warnf("failed login: %v", err)
+ 			status = internal.StatusNeedsLogin
++		} else if setupKey == "" && jwtToken == "" && gstatus.Code(err) == codes.InvalidArgument {
++			// Login deliberately probes an existing public key before it creates
++			// the interactive SSO flow for an unregistered peer.
++			log.Debugf("peer requires interactive login: %v", err)
++			status = internal.StatusNeedsLogin
+ 		} else {
+ 			log.Errorf("failed login: %v", err)
+ 			status = internal.StatusLoginFailed
+diff --git a/shared/management/client/grpc.go b/shared/management/client/grpc.go
+index bd2d0da..4d02db6 100644
+--- a/shared/management/client/grpc.go
++++ b/shared/management/client/grpc.go
+@@ -625,7 +625,11 @@ func (c *GrpcClient) login(req *proto.LoginRequest) (*proto.LoginResponse, error
+ 
+ 	err = backoff.Retry(operation, nbgrpc.Backoff(c.ctx))
+ 	if err != nil {
+-		log.Errorf("failed to login to Management Service: %v", err)
++		if status, ok := gstatus.FromError(err); ok && status.Code() == codes.PermissionDenied {
++			log.Debugf("peer is not registered yet: %v", err)
++		} else {
++			log.Errorf("failed to login to Management Service: %v", err)
++		}
+ 		return nil, err
+ 	}
+ 
+-- 
+2.50.1
