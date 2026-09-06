@@ -60,14 +60,16 @@ ONEKVM_EXTENSION_ID = "netbird"
 ONEKVM_EXTENSION_API_VERSION = "2"
 ONEKVM_EXTENSION_MANIFEST_TEMPLATE = "${S}/manifest.json.in"
 
-PACKAGES = "${PN}-dbg ${PN}-runtime ${PN}"
+PACKAGES = "${PN}-dbg netbird ${PN}"
 FILES:${PN} = "\
     ${ONEKVM_EXTENSION_ROOT}/bin/onekvm-netbird-controller \
     ${ONEKVM_EXTENSION_ROOT}/manifest.json \
     ${ONEKVM_EXTENSION_ROOT}/web \
 "
-FILES:${PN}-runtime = "${ONEKVM_EXTENSION_ROOT}/bin/netbird"
-RDEPENDS:${PN} += "${PN}-runtime (= ${EXTENDPKGV})"
+FILES:netbird = "${ONEKVM_EXTENSION_ROOT}/bin/netbird"
+RDEPENDS:${PN} += "netbird"
+RREPLACES:netbird += "${PN}-runtime (<= 1.0.0-r1)"
+RCONFLICTS:netbird += "${PN}-runtime (<= 1.0.0-r1)"
 RDEPENDS:${PN}:append:onekvm-nanokvm = " \
     onekvm-kernel-module-wireguard \
     onekvm-kernel-module-netfilter \
