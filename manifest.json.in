@@ -24,8 +24,12 @@
   }],
   "icon": {"source": "custom", "path": "web/logo.svg"},
   "page": {"title": "NetBird", "renderer": "vue", "entrypoint": "web/page.js", "icon": {"source": "custom", "path": "web/logo.svg"}},
-  "controller": {"runtime": "executable", "entrypoint": "bin/onekvm-netbird-controller", "arguments": ["--controller"], "timeout_seconds": 30},
-  "methods": {"status": {}, "connect": {}, "disconnect": {}, "logout": {}},
+  "methods": [
+    {"name": "status", "command": ["bin/onekvm-netbird-controller", "status"]},
+    {"name": "connect", "command": ["bin/onekvm-netbird-controller", "connect"]},
+    {"name": "disconnect", "command": ["bin/onekvm-netbird-controller", "disconnect"], "timeout_seconds": 25},
+    {"name": "logout", "command": ["bin/onekvm-netbird-controller", "logout"], "timeout_seconds": 20}
+  ],
   "settings_schema": {
     "type": "object",
     "additionalProperties": false,

@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "\
     file://LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464 \
     file://src/github.com/netbirdio/netbird/LICENSE;md5=4b0c257c801017efd43194ff660ef008 \
 "
-PR = "r3"
+PR = "r4"
 
 NETBIRD_VERSION = "0.78.1"
 GO_IMPORT = "github.com/netbirdio/netbird"
