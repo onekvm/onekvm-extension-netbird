@@ -3,10 +3,8 @@ From: OneKVM <dev@onekvm.local>
 Date: Thu, 10 Sep 2026 08:00:00 +0800
 Subject: [PATCH] netbird: do not log expected SSO probe as error
 
-An unregistered peer's Login to Management returns PermissionDenied
-before the interactive SSO flow starts. Keep that at debug instead of
-alarming errors. Real setup-key, SSO, network, and management failures
-stay at their existing severity.
+An unregistered peer Login to Management returns PermissionDenied
+before the interactive SSO flow starts. Keep that at debug.
 
 Upstream-Status: Pending
 ---
@@ -14,21 +12,19 @@ Upstream-Status: Pending
  1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/shared/management/client/grpc.go b/shared/management/client/grpc.go
-index 0000000..0000000 100644
+index efea47d..f1a3d3c 100644
 --- a/shared/management/client/grpc.go
 +++ b/shared/management/client/grpc.go
 @@ -621,7 +621,11 @@ func (c *GrpcClient) login(req *proto.LoginRequest) (*proto.LoginResponse, error
  
- 	err = backoff.Retry(operation, nbgrpc.Backoff(c.ctx))
- 	if err != nil {
+	err = backoff.Retry(operation, nbgrpc.Backoff(c.ctx))
+	if err != nil {
 -		log.Errorf("failed to login to Management Service: %v", err)
 +		if status, ok := gstatus.FromError(err); ok && status.Code() == codes.PermissionDenied {
 +			log.Debugf("peer is not registered yet: %v", err)
 +		} else {
 +			log.Errorf("failed to login to Management Service: %v", err)
 +		}
- 		return nil, err
- 	}
- 
--- 
-2.50.1
+		return nil, err
+	}
+
