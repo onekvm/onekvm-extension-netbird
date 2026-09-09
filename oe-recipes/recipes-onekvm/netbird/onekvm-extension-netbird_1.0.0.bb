@@ -25,6 +25,7 @@ S = "${UNPACKDIR}/extension"
 
 include onekvm-extension-netbird-go-mods.inc
 include onekvm-extension-netbird-licenses.inc
+LICENSE:remove = "Unknown"
 
 inherit go-mod go-mod-update-modules onekvm-extension
 
