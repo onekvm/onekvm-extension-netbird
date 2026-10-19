@@ -3,29 +3,28 @@ HOMEPAGE = "https://netbird.io/"
 LICENSE = "GPL-3.0-only & BSD-3-Clause"
 LIC_FILES_CHKSUM = "\
     file://LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464 \
-    file://src/github.com/netbirdio/netbird/LICENSE;md5=4b0c257c801017efd43194ff660ef008 \
+    file://src/github.com/netbirdio/netbird/LICENSE;md5=34b718d4cf4e380e91eaedb96cc9f1a4 \
 "
-PR = "r4"
+PR = "r5"
 
-NETBIRD_VERSION = "0.78.1"
+NETBIRD_VERSION = "0.81.2"
 GO_IMPORT = "github.com/netbirdio/netbird"
 GO_INSTALL = "${GO_IMPORT}/client"
+GO_EXTRA_LDFLAGS += "-X ${GO_IMPORT}/version.version=${NETBIRD_VERSION}"
 
 ONEKVM_COMPONENT_GIT_URI ??= "git://github.com/onekvm/onekvm-extension-netbird.git;protocol=https;branch=main"
 ONEKVM_COMPONENT_SRCREV ??= ""
 SRC_URI = "\
     ${ONEKVM_COMPONENT_GIT_URI};name=extension;destsuffix=extension \
     git://github.com/netbirdio/netbird.git;protocol=https;nobranch=1;name=upstream;destsuffix=${GO_SRCURI_DESTSUFFIX} \
-    file://0001-netbird-do-not-log-expected-sso-probe-as-error.patch;patchdir=src/${GO_IMPORT} \
 "
 SRCREV_extension = "${ONEKVM_COMPONENT_SRCREV}"
-SRCREV_upstream = "23a1487c26c5f00353c046bc818069189650dbfb"
+SRCREV_upstream = "bb90c9787a8a3591bcb3cccd106a024d1a30b0ef"
 SRCREV_FORMAT = "extension_upstream"
 S = "${UNPACKDIR}/extension"
 
 include onekvm-extension-netbird-go-mods.inc
 include onekvm-extension-netbird-licenses.inc
-LICENSE:remove = "Unknown"
 
 inherit go-mod go-mod-update-modules onekvm-extension
 
