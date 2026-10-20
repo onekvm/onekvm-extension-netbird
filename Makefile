@@ -1,6 +1,7 @@
 CONTROLLER_BINARY ?= build/onekvm-netbird-controller
 RUNTIME_BINARY ?= build/netbird
 PREFIX ?= /usr/local
+BINDIR ?= $(PREFIX)/bin
 DESTDIR ?=
 VERSION ?= 0.0.0-dev
 ARCH ?= unknown
@@ -13,7 +14,7 @@ install:
 	test -x $(CONTROLLER_BINARY)
 	test -x $(RUNTIME_BINARY)
 	install -Dm0755 $(CONTROLLER_BINARY) $(DESTDIR)$(PREFIX)/bin/onekvm-netbird-controller
-	install -Dm0755 $(RUNTIME_BINARY) $(DESTDIR)$(PREFIX)/bin/netbird
+	install -Dm0755 $(RUNTIME_BINARY) $(DESTDIR)$(BINDIR)/netbird
 	install -Dm0644 web/page.js $(DESTDIR)$(PREFIX)/web/page.js
 	install -Dm0644 web/logo.svg $(DESTDIR)$(PREFIX)/web/logo.svg
 	install -d $(DESTDIR)$(PREFIX)

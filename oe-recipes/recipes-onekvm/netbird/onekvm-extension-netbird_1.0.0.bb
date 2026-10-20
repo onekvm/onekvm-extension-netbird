@@ -1,11 +1,14 @@
 SUMMARY = "OneKVM NetBird service extension"
 HOMEPAGE = "https://netbird.io/"
 LICENSE = "GPL-3.0-only & BSD-3-Clause"
+ONEKVM_EXTENSION_SOURCE ?= "${UNPACKDIR}/extension"
+ONEKVM_EXTENSION_SOURCE_REV ?= "${ONEKVM_COMPONENT_SRCREV}"
+do_compile[vardeps] += "ONEKVM_EXTENSION_SOURCE_REV"
 LIC_FILES_CHKSUM = "\
-    file://LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464 \
+    file://${ONEKVM_EXTENSION_SOURCE}/LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464 \
     file://src/github.com/netbirdio/netbird/LICENSE;md5=34b718d4cf4e380e91eaedb96cc9f1a4 \
 "
-PR = "r5"
+PR = "r6"
 
 NETBIRD_VERSION = "0.81.2"
 GO_IMPORT = "github.com/netbirdio/netbird"
@@ -25,8 +28,7 @@ S = "${UNPACKDIR}/extension"
 
 include onekvm-extension-netbird-go-mods.inc
 include onekvm-extension-netbird-licenses.inc
-
-inherit go-mod go-mod-update-modules onekvm-extension
+inherit go-mod go-mod-update-modules onekvm-go-license-review onekvm-extension
 
 DEPENDS += "json-c"
 CGO_ENABLED = "0"
@@ -38,7 +40,7 @@ export GOTOOLCHAIN
 
 ONEKVM_EXTENSION_ID = "netbird"
 ONEKVM_EXTENSION_API_VERSION = "2"
-ONEKVM_EXTENSION_MANIFEST_TEMPLATE = "${S}/manifest.json.in"
+ONEKVM_EXTENSION_MANIFEST_TEMPLATE = "${ONEKVM_EXTENSION_SOURCE}/manifest.json.in"
 
 PACKAGES = "${PN}-dbg netbird ${PN}"
 FILES:${PN} = "\
@@ -46,19 +48,19 @@ FILES:${PN} = "\
     ${ONEKVM_EXTENSION_ROOT}/manifest.json \
     ${ONEKVM_EXTENSION_ROOT}/web \
 "
-FILES:netbird = "${ONEKVM_EXTENSION_ROOT}/bin/netbird"
-RDEPENDS:${PN} += "netbird"
-RREPLACES:netbird += "${PN}-runtime (<= 1.0.0-r1)"
-RCONFLICTS:netbird += "${PN}-runtime (<= 1.0.0-r1)"
-RDEPENDS:${PN}:append:onekvm-nanokvm = " \
+FILES:netbird = "${bindir}/netbird"
+RDEPENDS:${PN} += " \
+    netbird \
     onekvm-kernel-module-wireguard \
     onekvm-kernel-module-netfilter \
 "
+RREPLACES:netbird += "${PN}-runtime (<= 1.0.0-r1)"
+RCONFLICTS:netbird += "${PN}-runtime (<= 1.0.0-r1)"
 
 do_compile() {
     install -d ${B}/bin
     ${CXX} ${CXXFLAGS} -I${STAGING_INCDIR} \
-        ${S}/src/main.cpp ${STAGING_LIBDIR}/libjson-c.a -lm ${LDFLAGS} \
+        ${ONEKVM_EXTENSION_SOURCE}/src/main.cpp ${STAGING_LIBDIR}/libjson-c.a -lm ${LDFLAGS} \
         -o ${B}/bin/onekvm-netbird-controller
 
     cd ${S}/src/${GO_IMPORT}
@@ -67,9 +69,9 @@ do_compile() {
 do_compile[dirs] = "${B}"
 
 do_install() {
-    oe_runmake -C ${S} install \
+    oe_runmake -C ${ONEKVM_EXTENSION_SOURCE} install \
         CONTROLLER_BINARY=${B}/bin/onekvm-netbird-controller \
         RUNTIME_BINARY=${B}/bin/netbird \
-        DESTDIR=${D} PREFIX=${ONEKVM_EXTENSION_ROOT} \
+        DESTDIR=${D} PREFIX=${ONEKVM_EXTENSION_ROOT} BINDIR=${bindir} \
         VERSION=${PV} ARCH=${TARGET_ARCH}
 }
