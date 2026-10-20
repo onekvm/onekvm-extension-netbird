@@ -23,8 +23,8 @@
 镜像安装，然后使用插件管理器控制扩展：
 
 ```sh
-onekvm-plugin-manager enable netbird
-onekvm-plugin-manager disable netbird
+onekvm-extension enable netbird
+onekvm-extension disable netbird
 ```
 
 扩展需要 `wireguard` 和 `nf_tables` 内核模块。

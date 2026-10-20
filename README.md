@@ -25,8 +25,8 @@ The package name is `onekvm-extension-netbird`. Install it through your OneKVM
 distribution package or image, then manage it with the plugin manager:
 
 ```sh
-onekvm-plugin-manager enable netbird
-onekvm-plugin-manager disable netbird
+onekvm-extension enable netbird
+onekvm-extension disable netbird
 ```
 
 The extension requires the `wireguard` and `nf_tables` kernel modules.
