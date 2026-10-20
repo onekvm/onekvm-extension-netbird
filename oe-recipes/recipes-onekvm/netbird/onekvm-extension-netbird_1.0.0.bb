@@ -47,6 +47,7 @@ FILES:${PN} = "\
     ${ONEKVM_EXTENSION_ROOT}/bin/onekvm-netbird-controller \
     ${ONEKVM_EXTENSION_ROOT}/manifest.json \
     ${ONEKVM_EXTENSION_ROOT}/web \
+    ${ONEKVM_EXTENSION_ROOT}/screen-app \
 "
 FILES:netbird = "${bindir}/netbird"
 RDEPENDS:${PN} += " \

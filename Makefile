@@ -21,3 +21,6 @@ install:
 	sed -e 's/@ARCH@/$(ARCH)/g' -e 's/@VERSION@/$(VERSION)/g' \
 		manifest.json.in >$(DESTDIR)$(PREFIX)/manifest.json
 	chmod 0644 $(DESTDIR)$(PREFIX)/manifest.json
+	install -d $(DESTDIR)$(PREFIX)/screen-app
+	install -Dm0644 screen-app/main.vue-vapor.js $(DESTDIR)$(PREFIX)/screen-app/main.vue-vapor.js
+	install -Dm0644 screen-app/main.vue-vapor.pak $(DESTDIR)$(PREFIX)/screen-app/main.vue-vapor.pak

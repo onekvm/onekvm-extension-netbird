@@ -169,5 +169,25 @@
       "--health"
     ],
     "timeout_seconds": 5
-  }
+  },
+  "contributions": [
+    {
+      "point": "screen-display.app",
+      "id": "main",
+      "version": 1,
+      "data": {
+        "title": "NetBird",
+        "i18n": {
+          "zh": "NetBird"
+        },
+        "glyph": "N",
+        "bundle": "screen-app", "runtime": "pocketjs-vue-vapor", "bridge_version": 2, "permissions": {"rpc": [{"methods": ["status", "connect", "disconnect", "logout"], "configure": true}]},
+        "controls": [
+          "touch",
+          "rotary"
+        ],
+        "order": 40
+      }
+    }
+  ]
 }
