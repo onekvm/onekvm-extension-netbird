@@ -14,3 +14,4 @@
 *.swp
 *.swo
 *~
+/screen-app/dist/
