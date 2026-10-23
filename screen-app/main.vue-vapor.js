@@ -1,5 +1,5 @@
 (() => {
-  // tmp/pocketjs/framework/src/scheduler-polyfill.ts
+  // ../tmp/pocketjs/framework/src/scheduler-polyfill.ts
   if (typeof globalThis.queueMicrotask !== "function") {
     globalThis.queueMicrotask = (fn) => {
       Promise.resolve().then(fn);
@@ -22,7 +22,7 @@
     };
   }
 
-  // tmp/pocketjs/contracts/spec/spec.ts
+  // ../tmp/pocketjs/contracts/spec/spec.ts
   var SCREEN_W = 480;
   var SCREEN_H = 272;
   var NODE_TYPE = {
@@ -281,7 +281,7 @@
   var ANALOG_CENTER = 32896;
   var FIXED_DT = 1 / 60;
 
-  // tmp/pocketjs/framework/src/host.ts
+  // ../tmp/pocketjs/framework/src/host.ts
   function hostViewport(ops) {
     return ops.__viewport ?? null;
   }
@@ -412,7 +412,7 @@
     return value;
   }
 
-  // tmp/pocketjs/framework/src/clock.ts
+  // ../tmp/pocketjs/framework/src/clock.ts
   var TICKS_PER_SECOND = validTickHz(60);
   function validTickHz(hz) {
     if (!Number.isInteger(hz) || hz < 1 || hz > 240) {
@@ -471,7 +471,7 @@
       t.cb();
   }
 
-  // tmp/pocketjs/node_modules/solid-js/dist/solid.js
+  // ../tmp/pocketjs/node_modules/solid-js/dist/solid.js
   var IS_DEV = false;
   var equalFn = (a, b) => a === b;
   var $PROXY = Symbol("solid-proxy");
@@ -904,7 +904,7 @@
   }
   var FALLBACK = Symbol("fallback");
 
-  // tmp/pocketjs/framework/src/analog.ts
+  // ../tmp/pocketjs/framework/src/analog.ts
   var ANALOG_DEADZONE = 0.12;
   var analogPacked = ANALOG_CENTER;
   var rightPacked = ANALOG_CENTER;
@@ -929,10 +929,10 @@
     return axis(analogPacked & 255);
   }
 
-  // tmp/pocketjs/framework/src/frame.ts
+  // ../tmp/pocketjs/framework/src/frame.ts
   var callbacks = new Set;
 
-  // tmp/pocketjs/framework/src/pak.ts
+  // ../tmp/pocketjs/framework/src/pak.ts
   var map = null;
   var bytes = null;
   function readKey(u8, off, len) {
@@ -1011,7 +1011,7 @@
     return bytes.slice(e.off + start, e.off + stop);
   }
 
-  // tmp/pocketjs/framework/src/input.ts
+  // ../tmp/pocketjs/framework/src/input.ts
   var root = null;
   var focused = null;
   var pressedNode = null;
@@ -1525,7 +1525,7 @@
     }
   }
 
-  // tmp/pocketjs/framework/src/native-tree.ts
+  // ../tmp/pocketjs/framework/src/native-tree.ts
   var treeMutationHook = null;
   function setTreeMutationHook(fn) {
     treeMutationHook = fn;
@@ -2133,7 +2133,7 @@
     return String(node.type);
   }
 
-  // tmp/pocketjs/framework/src/vue-vapor-dom.ts
+  // ../tmp/pocketjs/framework/src/vue-vapor-dom.ts
   function parseAttrs(raw, node) {
     const re = /([A-Za-z_:][-A-Za-z0-9_:]*)(?:=(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g;
     let match;
@@ -2246,10 +2246,10 @@
       g.document = g.__pocketDocument;
   }
 
-  // tmp/pocketjs/framework/src/prelude.ts
+  // ../tmp/pocketjs/framework/src/prelude.ts
   installVueVaporDom();
 
-  // tmp/pocketjs/framework/src/display.ts
+  // ../tmp/pocketjs/framework/src/display.ts
   var roots = null;
   function layer(width, height, overlay) {
     const node = createElement("view");
@@ -2316,7 +2316,7 @@
     return roots;
   }
 
-  // tmp/pocketjs/framework/src/devtools.ts
+  // ../tmp/pocketjs/framework/src/devtools.ts
   var TAPE_CAP = 36000;
   var TREE_THROTTLE = 30;
   var STATS_EVERY = 30;
@@ -2949,7 +2949,7 @@
     }
   };
 
-  // tmp/pocketjs/node_modules/vue/dist/vue.runtime-with-vapor.esm-browser.prod.js
+  // ../tmp/pocketjs/node_modules/vue/dist/vue.runtime-with-vapor.esm-browser.prod.js
   function e(e) {
     let t = Object.create(null);
     for (let n of e.split(`,`))
@@ -5319,15 +5319,6 @@
       }
     return n || e;
   }
-  function Gf(e, t) {
-    if (e.nodeType !== 3)
-      return false;
-    let n = e;
-    if (n.data === t)
-      return true;
-    let r = n.parentElement;
-    return r && !ba(r, 0) && ra(), n.data = t, true;
-  }
   function qf(e, t) {
     let n = q(e);
     if (!n)
@@ -5390,20 +5381,6 @@
   }
   function $f(e) {
     return !!e && e.$rcn === 1;
-  }
-  function ep(e) {
-    for (;; ) {
-      if (Zf(e))
-        return e;
-      if (e.nodeType === 8 && (e.data === `[` || e.data === `]` || e.data === `teleport start` || e.data === `teleport end`)) {
-        let t = e.nextSibling;
-        if (!t)
-          return e;
-        e = t;
-        continue;
-      }
-      return e;
-    }
   }
   function tp(e) {
     e && !ba(e, 1) && ra();
@@ -7395,30 +7372,6 @@
     return null;
   }
   var $v = new WeakMap;
-  var ry;
-  function iy(e, t = 0, n) {
-    let r = !!(t & 1), i = !!(t & 2), a;
-    return () => {
-      if (U) {
-        e[0] === `<` && e[1] === `!` || Im();
-        let t = null;
-        return i && !W(H, ``) ? (t = ep(H), e !== `` && e[0] !== `<` && Gf(t, e), a || (a = t.cloneNode(true)), Pf(t)) : t = Mf(H, e, false, n), r && (t.$root = true), t;
-      }
-      if (a) {
-        let e = a.cloneNode(true);
-        return r && (e.$root = true), e;
-      }
-      if (e[0] !== `<`)
-        return K(e);
-      if (ry = ry || globalThis.__pocketDocument.createElement(`template`), n) {
-        let t = n === 1 ? `svg` : `math`;
-        ry.innerHTML = `<${t}>${e}</${t}>`, a = lp(lp(ry.content));
-      } else
-        ry.innerHTML = e, a = lp(ry.content);
-      let t = a.cloneNode(true);
-      return r && (t.$root = true), t;
-    };
-  }
   function ay(e, t, n, r = 1) {
     let i = mf, a = hf;
     U || vf();
@@ -7579,7 +7532,7 @@
     }
   }
 
-  // tmp/pocketjs/framework/src/renderer-vue-vapor.ts
+  // ../tmp/pocketjs/framework/src/renderer-vue-vapor.ts
   var insertVaporBlock = Z;
   var removeVaporBlock = Q;
   var createPocketVaporApp = Vg;
@@ -7630,7 +7583,7 @@
     return () => app.unmount();
   }
 
-  // tmp/pocketjs/framework/src/overlay.ts
+  // ../tmp/pocketjs/framework/src/overlay.ts
   var overlayRoot = null;
   function setOverlayRoot(root) {
     overlayRoot = root;
@@ -7642,7 +7595,7 @@
     return overlayRoot;
   }
 
-  // tmp/pocketjs/framework/src/styles.ts
+  // ../tmp/pocketjs/framework/src/styles.ts
   var verbatim = new Map;
   var sortedAlias = new Map;
   function normalize(cls) {
@@ -7671,7 +7624,7 @@
     return alias === ALIAS_AMBIGUOUS ? undefined : alias;
   }
 
-  // tmp/pocketjs/framework/src/frame-vue-vapor.ts
+  // ../tmp/pocketjs/framework/src/frame-vue-vapor.ts
   var callbacks2 = new Set;
   var buttonHandlerBlockDepth = 0;
   function resetFrameHooks() {
@@ -7712,7 +7665,7 @@
     });
   }
 
-  // tmp/pocketjs/framework/src/touch.ts
+  // ../tmp/pocketjs/framework/src/touch.ts
   var LEGACY_COORD_BITS = 9;
   var LEGACY_COORD_MASK = (1 << LEGACY_COORD_BITS) - 1;
   var LEGACY_ID_SHIFT = LEGACY_COORD_BITS * 2;
@@ -7770,7 +7723,7 @@
     allSnapshot = EMPTY;
   }
 
-  // tmp/pocketjs/framework/src/gesture-core.ts
+  // ../tmp/pocketjs/framework/src/gesture-core.ts
   var MAX_TRACKS = 8;
   var HIST = 8;
   var VELOCITY_WINDOW = 3;
@@ -8246,14 +8199,14 @@
     }
   }
 
-  // tmp/pocketjs/framework/src/gesture.vue-vapor.ts
+  // ../tmp/pocketjs/framework/src/gesture.vue-vapor.ts
   function createGesture(opts) {
     const handle = attachGesture(opts);
     Vn(() => handle.dispose(), true);
     return handle;
   }
 
-  // tmp/pocketjs/framework/src/touch-activation.ts
+  // ../tmp/pocketjs/framework/src/touch-activation.ts
   function installTouchActivation() {
     const install = (surface) => createGesture({
       surface,
@@ -8291,7 +8244,7 @@
     };
   }
 
-  // tmp/pocketjs/framework/src/effects.ts
+  // ../tmp/pocketjs/framework/src/effects.ts
   var nextId = 1;
   var pending = new Map;
   var queue = [];
@@ -8327,7 +8280,7 @@
     }
   }
 
-  // tmp/pocketjs/framework/src/services.ts
+  // ../tmp/pocketjs/framework/src/services.ts
   var pumps = new Set;
   function runServicePumps() {
     if (pumps.size === 0)
@@ -8336,7 +8289,7 @@
       pump();
   }
 
-  // tmp/pocketjs/framework/src/styles.generated.ts
+  // ../tmp/pocketjs/framework/src/styles.generated.ts
   var STYLE_IDS = {
     grow: 0,
     "relative w-full h-full bg-black flex flex-col items-center": 1,
@@ -8359,7 +8312,7 @@
     hidden: 18
   };
 
-  // tmp/pocketjs/framework/src/index-vue-vapor.ts
+  // ../tmp/pocketjs/framework/src/index-vue-vapor.ts
   var STYLES_KEY = "ui:styles";
   var FONT_PREFIX = "ui:font.";
   var IMG_PREFIX = "ui:img.";
@@ -8551,7 +8504,7 @@
       pak: opts.pak
     });
   }
-  // tmp/pocketjs/framework/src/anim.ts
+  // ../tmp/pocketjs/framework/src/anim.ts
   var EASING_BY_NAME = {
     linear: ENUMS.Easing.Linear,
     in: ENUMS.Easing.EaseIn,
@@ -8588,7 +8541,7 @@
     }
     return getOps().animate(nodeId(node), propId, encodePropValue(prop, to), opts.dur ?? 200, easing, opts.delay ?? 0);
   }
-  // tmp/pocketjs/framework/src/components-vue-vapor.ts
+  // ../tmp/pocketjs/framework/src/components-vue-vapor.ts
   var NO_FALLTHROUGH = {
     inheritAttrs: false
   };
@@ -9174,7 +9127,7 @@
     Vn(() => roots.forEach((root) => root.dispose()));
     return viewport;
   }, NO_FALLTHROUGH);
-  // ../../../../tmp/tmp.SbiaajidKm/src/config.ts
+  // ../../../../../tmp/onekvm-screen-app-m21_qx0a/apps/extension-screen/src/config.ts
   var CONFIG = {
     extension: "netbird",
     title: "NetBird",
@@ -9182,15 +9135,15 @@
     statusMethod: "status",
     actions: [{
       method: "connect",
-      title: "连接"
+      title: "Connect"
     }, {
       method: "disconnect",
-      title: "断开"
+      title: "Disconnect"
     }],
     kind: "network"
   };
 
-  // ../../../../tmp/tmp.SbiaajidKm/src/device.ts
+  // ../../../../../tmp/onekvm-screen-app-m21_qx0a/apps/extension-screen/src/device.ts
   function device() {
     return globalThis.onekvm;
   }
@@ -9213,7 +9166,7 @@
     }));
   }
 
-  // ../../../../tmp/tmp.SbiaajidKm/src/ui.ts
+  // ../../../../../tmp/onekvm-screen-app-m21_qx0a/apps/extension-screen/src/ui.ts
   var COLOR = {
     black: 4278190080,
     white: 4294967295,
@@ -9229,6 +9182,186 @@
     base: 2,
     xs: 0
   };
+
+  // ../../../../../tmp/onekvm-screen-app-m21_qx0a/apps/shared/i18n.ts
+  function normalizeLang(raw) {
+    const lang = raw.trim().toLowerCase().replace(/-/g, "_");
+    if (lang === "zh" || lang === "zh_cn")
+      return "zh";
+    return lang === "zh_tw" ? "zh_tw" : "en";
+  }
+  function readLang() {
+    const bridge = globalThis.onekvm;
+    return normalizeLang(bridge?.get?.("language") || "");
+  }
+  var en = {
+    noSignal: "No signal",
+    turnZoom: "Turn to zoom {zoom}×",
+    pressReset: "Press to reset",
+    noTouch: "No touchscreen",
+    webMouse: "Use the web mouse",
+    disconnected: "Disconnected",
+    left: "Left",
+    right: "Right",
+    speed: "Speed",
+    power: "Power control",
+    on: "On",
+    off: "Off",
+    reset: "Reset",
+    back: "Back",
+    poweredOn: "Powered on",
+    poweredOff: "Powered off",
+    hostPower: "Host power",
+    checkAtx: "Check the ATX cable",
+    powerLed: "Power LED",
+    hddLed: "HDD LED",
+    lit: "On",
+    unlit: "Off",
+    active: "Active",
+    idle: "Idle",
+    connect: "Connect",
+    disconnect: "Disconnect",
+    connected: "Connected",
+    wake: "Wake",
+    wakeTitle: "Wake on LAN",
+    wakeConfigured: "Wake device saved",
+    saveDevice: "Save a device in the web UI",
+    canWake: "Ready to wake",
+    unconfigured: "Not configured",
+    networks: "{n} networks",
+    offline: "Offline",
+    online: "Online",
+    ready: "Ready",
+    notReady: "Not ready",
+    running: "Running",
+    notRunning: "Stopped",
+    busy: "Working…",
+    failed: "Failed. Try again.",
+    holdBack: "Hold to go back"
+  };
+  var zh2 = {
+    noSignal: "无信号",
+    turnZoom: "旋转缩放 {zoom}×",
+    pressReset: "按下复位",
+    noTouch: "此设备无触摸屏",
+    webMouse: "请在网页端控制鼠标",
+    disconnected: "未连接",
+    left: "左键",
+    right: "右键",
+    speed: "速度",
+    power: "电源控制",
+    on: "开机",
+    off: "关机",
+    reset: "重启",
+    back: "返回",
+    poweredOn: "已开机",
+    poweredOff: "已关机",
+    hostPower: "受控主机电源",
+    checkAtx: "请检查 ATX 接口",
+    powerLed: "电源灯",
+    hddLed: "HDD 灯",
+    lit: "亮",
+    unlit: "灭",
+    active: "活动",
+    idle: "空闲",
+    connect: "连接",
+    disconnect: "断开",
+    connected: "已连接",
+    wake: "唤醒",
+    wakeTitle: "网络唤醒",
+    wakeConfigured: "已配置唤醒设备",
+    saveDevice: "请先在网页端保存设备",
+    canWake: "可唤醒",
+    unconfigured: "未配置",
+    networks: "{n} 个网络",
+    offline: "离线",
+    online: "在线",
+    ready: "已就绪",
+    notReady: "未就绪",
+    running: "运行中",
+    notRunning: "未运行",
+    busy: "处理中",
+    failed: "操作失败，请重试",
+    holdBack: "长按返回"
+  };
+  var zhTw = {
+    noSignal: "無訊號",
+    turnZoom: "旋轉縮放 {zoom}×",
+    pressReset: "按下重設",
+    noTouch: "此裝置無觸控螢幕",
+    webMouse: "請在網頁端控制滑鼠",
+    disconnected: "未連線",
+    left: "左鍵",
+    right: "右鍵",
+    speed: "速度",
+    power: "電源控制",
+    on: "開機",
+    off: "關機",
+    reset: "重啟",
+    back: "返回",
+    poweredOn: "已開機",
+    poweredOff: "已關機",
+    hostPower: "受控主機電源",
+    checkAtx: "請檢查 ATX 介面",
+    powerLed: "電源燈",
+    hddLed: "HDD 燈",
+    lit: "亮",
+    unlit: "滅",
+    active: "活動",
+    idle: "閒置",
+    connect: "連線",
+    disconnect: "中斷",
+    connected: "已連線",
+    wake: "喚醒",
+    wakeTitle: "網路喚醒",
+    wakeConfigured: "已設定喚醒裝置",
+    saveDevice: "請先在網頁端儲存裝置",
+    canWake: "可喚醒",
+    unconfigured: "未設定",
+    networks: "{n} 個網路",
+    offline: "離線",
+    online: "線上",
+    ready: "已就緒",
+    notReady: "未就緒",
+    running: "執行中",
+    notRunning: "未執行",
+    busy: "處理中",
+    failed: "操作失敗，請重試",
+    holdBack: "長按返回"
+  };
+  var packs = {
+    en,
+    zh: zh2,
+    zh_tw: zhTw
+  };
+  function t2(key, values = {}, lang = readLang()) {
+    return packs[lang][key].replace(/\{([^{}]+)\}/g, (placeholder, name) => Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : placeholder);
+  }
+  function useI18n() {
+    const lang = dn(readLang());
+    onFrame(() => {
+      const next = readLang();
+      if (next !== lang.value)
+        lang.value = next;
+    });
+    return (key, values) => t2(key, values, lang.value);
+  }
+  function appTitle(kind, fallback, translate) {
+    return kind === "power" ? translate("power") : kind === "wake" ? translate("wakeTitle") : fallback;
+  }
+  function actionTitle(method, fallback, translate) {
+    switch (method) {
+      case "on":
+      case "off":
+      case "reset":
+      case "connect":
+      case "disconnect":
+      case "wake":
+        return translate(method);
+      default:
+        return fallback;
+    }
+  }
 
   // vue-vapor-helper:/vue-jsx-vapor/vapor
   var createComponent = (type, ...args) => {
@@ -9348,8 +9481,7 @@
     return resolveValues(values);
   }
 
-  // ../../../../tmp/tmp.SbiaajidKm/src/App.tsx
-  var _t0 = iy("长按返回", 2);
+  // ../../../../../tmp/onekvm-screen-app-m21_qx0a/apps/extension-screen/src/App.tsx
   function safeJSON(raw) {
     try {
       const parsed = JSON.parse(raw);
@@ -9361,41 +9493,44 @@
   function text(value, fallback = "—") {
     return typeof value === "string" && value ? value : fallback;
   }
-  function summary(value) {
+  function summary(value, t) {
     if (CONFIG.kind === "wake")
-      return value.configured ? "已配置唤醒设备" : "请先在网页端保存设备";
+      return t(value.configured ? "wakeConfigured" : "saveDevice");
     if (CONFIG.extension === "tailscale") {
       if (value.loggedIn === true)
-        return text(Array.isArray(value.addresses) ? value.addresses[0] : "已连接", "已连接");
-      return text(value.backendState, "未连接");
+        return text(Array.isArray(value.addresses) ? value.addresses[0] : "", t("connected"));
+      return t("disconnected");
     }
     if (CONFIG.extension === "netbird") {
       if (value.daemonStatus === "Connected")
-        return text(value.netbirdIp, "已连接");
-      return text(value.daemonStatus, "未连接");
+        return text(value.netbirdIp, t("connected"));
+      return t("disconnected");
     }
     if (CONFIG.extension === "zerotier") {
       const networks = Array.isArray(value.networks) ? value.networks.length : 0;
-      return value.online === true ? `${networks} 个网络` : "服务离线";
+      return value.online === true ? t("networks", {
+        n: networks
+      }) : t("offline");
     }
     if (CONFIG.extension === "easytier")
-      return value.ready === true ? text(value.ipv4, "已就绪") : "未就绪";
-    return value.online === true ? "在线" : "离线";
+      return value.ready === true ? text(value.ipv4, t("ready")) : t("notReady");
+    return t(value.online === true ? "online" : "offline");
   }
-  function statusLabel(value) {
+  function statusLabel(value, t) {
     if (CONFIG.kind === "wake")
-      return value.configured ? "可唤醒" : "未配置";
+      return t(value.configured ? "canWake" : "unconfigured");
     if (CONFIG.extension === "tailscale")
-      return value.loggedIn === true ? "已连接" : "未连接";
+      return t(value.loggedIn === true ? "connected" : "disconnected");
     if (CONFIG.extension === "netbird")
-      return value.daemonStatus === "Connected" ? "已连接" : "未连接";
+      return t(value.daemonStatus === "Connected" ? "connected" : "disconnected");
     if (CONFIG.extension === "zerotier")
-      return value.online === true ? "在线" : "离线";
+      return t(value.online === true ? "online" : "offline");
     if (CONFIG.extension === "easytier")
-      return value.ready === true ? "运行中" : "未运行";
-    return value.online === true ? "在线" : "离线";
+      return t(value.ready === true ? "running" : "notRunning");
+    return t(value.online === true ? "online" : "offline");
   }
   function ExtensionApp() {
+    const t = useI18n();
     const screen = screenSize();
     const state = dn({});
     const busy = dn(false);
@@ -9403,7 +9538,7 @@
     let lastResponse = "";
     let lastPoll = 0;
     let knobSeq = "0";
-    let selected = 0;
+    const selected = dn(0);
     const poll = () => {
       const raw = device()?.get?.("appResponse") || "";
       if (raw && raw !== lastResponse) {
@@ -9411,7 +9546,7 @@
         const response = safeJSON(raw);
         busy.value = response.busy === true;
         if (response.ok === false)
-          message.value = text(response.error, "操作失败");
+          message.value = "failed";
         const payload = response.response;
         if (payload && typeof payload === "object" && !Array.isArray(payload)) {
           state.value = payload;
@@ -9431,7 +9566,7 @@
       if (!item || busy.value)
         return;
       if (CONFIG.kind === "wake" && state.value.configured !== true) {
-        message.value = "请先在网页端保存设备";
+        message.value = "saveDevice";
         return;
       }
       busy.value = true;
@@ -9450,9 +9585,9 @@
         knobSeq = seq;
         const step = Number(device()?.get?.("knob") || "0");
         if (step && CONFIG.actions.length)
-          selected = (selected + (step > 0 ? 1 : CONFIG.actions.length - 1)) % CONFIG.actions.length;
+          selected.value = ((selected.value + step) % CONFIG.actions.length + CONFIG.actions.length) % CONFIG.actions.length;
         if (device()?.get?.("knobClick") === "1")
-          action(selected);
+          action(selected.value);
         if (device()?.get?.("knobHold") === "1")
           device()?.set?.("launch", "shell");
       }
@@ -9480,7 +9615,7 @@
               textColor: COLOR.white
             })
           }, c(() => {
-            const _n0 = createNodes(() => CONFIG.glyph, " ", () => CONFIG.title);
+            const _n0 = createNodes(() => CONFIG.glyph, " ", () => appTitle(CONFIG.kind, CONFIG.title, t));
             return _n0;
           }, {
             _: 8
@@ -9503,10 +9638,10 @@
             })
           }, c(() => {
             const _n4 = ay(() => busy.value, () => {
-              const _n6 = createNodes("处理中");
+              const _n6 = createNodes(() => t("busy"));
               return _n6;
             }, () => {
-              const _n8 = createNodes(() => statusLabel(state.value));
+              const _n8 = createNodes(() => statusLabel(state.value, t));
               return _n8;
             }, 389);
             return _n4;
@@ -9520,7 +9655,7 @@
               textColor: COLOR.white
             })
           }, c(() => {
-            const _n10 = createNodes(() => summary(state.value));
+            const _n10 = createNodes(() => summary(state.value, t));
             return _n10;
           }, {
             _: 8
@@ -9533,7 +9668,7 @@
                 textColor: COLOR.danger
               })
             }, c(() => {
-              const _n14 = createNodes(() => message.value);
+              const _n14 = createNodes(() => t(message.value));
               return _n14;
             }, {
               _: 8
@@ -9556,14 +9691,14 @@
           const _n19 = createNodes(() => CONFIG.actions.map((item, index) => (() => {
             const _n0 = cy(() => item.method, () => {
               const _n4 = createComponent(View, {
-                class: () => selected === index ? "flex items-center justify-center rounded-xl bg-blue-500" : "flex items-center justify-center rounded-xl bg-zinc-800",
+                class: () => selected.value === index ? "flex items-center justify-center rounded-xl bg-blue-500" : "flex items-center justify-center rounded-xl bg-zinc-800",
                 style: () => ({
                   width: buttonW,
                   height: 40
                 }),
                 focusable: true,
                 onPress: () => () => {
-                  selected = index;
+                  selected.value = index;
                   action(index);
                   setHot(true);
                 }
@@ -9575,7 +9710,7 @@
                     textColor: COLOR.white
                   })
                 }, c(() => {
-                  const _n2 = createNodes(() => item.title);
+                  const _n2 = createNodes(() => actionTitle(item.method, item.title, t));
                   return _n2;
                 }, {
                   _: 8
@@ -9604,10 +9739,12 @@
               fontSlot: FONT.xs,
               textColor: COLOR.muted
             })
-          }, () => {
-            const _n21 = _t0();
+          }, c(() => {
+            const _n21 = createNodes(() => t("holdBack"));
             return _n21;
-          });
+          }, {
+            _: 8
+          }));
           return _n22;
         });
         return [_n3, _n18, _n20, _n23];
@@ -9616,239 +9753,8 @@
     })();
   }
 
-  // ../../../../tmp/tmp.SbiaajidKm/src/Power.tsx
-  var _t02 = iy("⚡  电源", 2);
-  var _t1 = iy("长按返回", 2);
-  var actions = [{
-    id: "on",
-    title: "开机"
-  }, {
-    id: "off",
-    title: "关机"
-  }, {
-    id: "reset",
-    title: "重启"
-  }];
-  function readAtx() {
-    try {
-      const raw = JSON.parse(device()?.get?.("system") || "{}");
-      return raw.atx && typeof raw.atx === "object" ? raw.atx : {};
-    } catch {
-      return {};
-    }
-  }
-  function Power() {
-    const screen = screenSize();
-    const atx = dn(readAtx());
-    const busy = dn(false);
-    const message = dn("");
-    let selected = 0;
-    let knobSeq = "0";
-    let lastResponse = "";
-    const run = (action) => {
-      if (busy.value)
-        return;
-      busy.value = true;
-      message.value = "";
-      device()?.set?.("powerAction", action);
-    };
-    onFrame(() => {
-      atx.value = readAtx();
-      const response = device()?.get?.("appResponse") || "";
-      if (response && response !== lastResponse) {
-        lastResponse = response;
-        try {
-          const parsed = JSON.parse(response);
-          busy.value = parsed.busy === true;
-          if (parsed.ok === false)
-            message.value = typeof parsed.error === "string" ? parsed.error : "操作失败";
-        } catch {}
-      }
-      const seq = device()?.get?.("knobSeq") || "0";
-      if (seq !== knobSeq) {
-        knobSeq = seq;
-        const step = Number(device()?.get?.("knob") || "0");
-        if (step)
-          selected = (selected + (step > 0 ? 1 : actions.length - 1)) % actions.length;
-        if (device()?.get?.("knobClick") === "1")
-          run(actions[selected].id);
-        if (device()?.get?.("knobHold") === "1")
-          device()?.set?.("launch", "shell");
-      }
-    });
-    const buttonW = Math.floor((screen.w - 30 - 16) / 3);
-    const available = atx.value.available === true;
-    const powered = atx.value.pwr_led === true;
-    return (() => {
-      const _n29 = createComponent(View, {
-        class: "relative w-full h-full bg-black flex flex-col items-center",
-        style: () => ({
-          width: screen.w,
-          height: screen.h
-        })
-      }, () => {
-        const _n2 = createComponent(View, {
-          class: "flex items-center justify-center",
-          style: () => ({
-            width: screen.w,
-            height: 34
-          })
-        }, () => {
-          const _n1 = createComponent(Text2, {
-            class: "text-base text-white",
-            style: () => ({
-              fontSlot: FONT.base,
-              textColor: COLOR.white
-            })
-          }, () => {
-            const _n0 = _t02();
-            return _n0;
-          });
-          return _n1;
-        });
-        const _n23 = createComponent(View, {
-          class: "flex flex-col items-center justify-center rounded-xl",
-          style: () => ({
-            width: Math.min(216, screen.w - 24),
-            height: 92,
-            bgColor: COLOR.panel
-          })
-        }, () => {
-          const _n10 = createComponent(Text2, {
-            class: "text-base text-white",
-            style: () => ({
-              fontSlot: FONT.base,
-              textColor: available ? powered ? COLOR.success : COLOR.muted : COLOR.warning
-            })
-          }, c(() => {
-            const _n3 = ay(() => !available, () => {
-              const _n5 = createNodes("未连接");
-              return _n5;
-            }, () => ay(() => powered, () => {
-              const _n7 = createNodes("已开机");
-              return _n7;
-            }, () => {
-              const _n9 = createNodes("已关机");
-              return _n9;
-            }, 641), 389);
-            return _n3;
-          }, {
-            _: 8
-          }));
-          const _n16 = createComponent(Text2, {
-            class: "text-sm text-white",
-            style: () => ({
-              fontSlot: FONT.sm,
-              textColor: COLOR.white
-            })
-          }, c(() => {
-            const _n11 = ay(() => available, () => {
-              const _n13 = createNodes("受控主机电源");
-              return _n13;
-            }, () => {
-              const _n15 = createNodes("请检查 ATX 接口");
-              return _n15;
-            }, 901);
-            return _n11;
-          }, {
-            _: 8
-          }));
-          const _n17 = ay(() => message.value, () => {
-            const _n20 = createComponent(Text2, {
-              class: "text-xs text-white",
-              style: () => ({
-                fontSlot: FONT.xs,
-                textColor: COLOR.danger
-              })
-            }, c(() => {
-              const _n19 = createNodes(() => message.value);
-              return _n19;
-            }, {
-              _: 8
-            }));
-            return _n20;
-          }, () => {
-            const _n22 = createNodes(null);
-            return _n22;
-          }, 1029);
-          return [_n10, _n16, _n17];
-        });
-        const _n25 = createComponent(View, {
-          class: "flex flex-row items-center justify-center gap-2",
-          style: () => ({
-            width: screen.w,
-            height: 54,
-            insetT: 16
-          })
-        }, c(() => {
-          const _n24 = createNodes(() => actions.map((item, index) => (() => {
-            const _n0 = cy(() => item.id, () => {
-              const _n4 = createComponent(View, {
-                class: () => selected === index ? "flex items-center justify-center rounded-xl bg-blue-500" : "flex items-center justify-center rounded-xl bg-zinc-800",
-                style: () => ({
-                  width: buttonW,
-                  height: 40
-                }),
-                focusable: true,
-                onPress: () => () => {
-                  selected = index;
-                  run(item.id);
-                  setHot(true);
-                }
-              }, () => {
-                const _n3 = createComponent(Text2, {
-                  class: "text-sm text-white",
-                  style: () => ({
-                    fontSlot: FONT.sm,
-                    textColor: COLOR.white
-                  })
-                }, c(() => {
-                  const _n2 = createNodes(() => item.title);
-                  return _n2;
-                }, {
-                  _: 8
-                }));
-                return _n3;
-              });
-              return _n4;
-            });
-            return _n0;
-          })()));
-          return _n24;
-        }, {
-          _: 8
-        }));
-        const _n28 = createComponent(View, {
-          class: "flex items-center justify-center",
-          style: () => ({
-            width: screen.w,
-            height: 34,
-            insetT: 12
-          })
-        }, () => {
-          const _n27 = createComponent(Text2, {
-            class: "text-xs text-zinc-400",
-            style: () => ({
-              fontSlot: FONT.xs,
-              textColor: COLOR.muted
-            })
-          }, () => {
-            const _n26 = _t1();
-            return _n26;
-          });
-          return _n27;
-        });
-        return [_n2, _n23, _n25, _n28];
-      }, true);
-      return _n29;
-    })();
-  }
-
-  // ../../../../tmp/tmp.SbiaajidKm/src/main.tsx
-  mount(() => CONFIG.kind === "power" ? (() => {
-    const _n0 = createComponent(Power, null, null, true);
-    return _n0;
-  })() : (() => {
+  // ../../../../../tmp/onekvm-screen-app-m21_qx0a/apps/extension-screen/src/main.tsx
+  mount(() => (() => {
     const _n0 = createComponent(ExtensionApp, null, null, true);
     return _n0;
   })());
