@@ -1,5 +1,4 @@
-import type { Translator } from "./i18n";
-import type { Status } from "./types";
+import type { Status, Translator } from "@onekvm/screen-ui";
 
 function text(value: unknown, fallback: string): string {
   return typeof value === "string" && value ? value : fallback;

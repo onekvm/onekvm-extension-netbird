@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "\
     file://${ONEKVM_EXTENSION_SOURCE}/LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464 \
     file://src/github.com/netbirdio/netbird/LICENSE;md5=34b718d4cf4e380e91eaedb96cc9f1a4 \
 "
-PR = "r9"
+PR = "r10"
 
 NETBIRD_VERSION = "0.81.2"
 GO_IMPORT = "github.com/netbirdio/netbird"

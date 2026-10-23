@@ -1,4 +1,4 @@
-import type { AppConfig } from "./types";
+import type { AppConfig } from "@onekvm/screen-ui";
 
 export const CONFIG: AppConfig = {
   "extension": "netbird",
