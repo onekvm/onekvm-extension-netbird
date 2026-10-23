@@ -3,7 +3,7 @@ import type { AppConfig } from "@onekvm/screen-ui";
 export const CONFIG: AppConfig = {
   "extension": "netbird",
   "title": "NetBird",
-  "glyph": "N",
+  "icon": "src/logo.png",
   "statusMethod": "status",
   "kind": "network",
   "actions": [
