@@ -1,4 +1,5 @@
 #include <json-c/json.h>
+#include "events.hpp"
 
 #include <fcntl.h>
 #include <signal.h>
@@ -31,6 +32,13 @@ struct Settings {
   std::string management_url;
   int wireguard_port = 51820;
 };
+
+struct AuthorizationState { std::string state, url; std::int64_t expires_at = 0; };
+AuthorizationState ReadAuthorization(bool connected);
+void WriteOAuthState(const std::string &token, const std::string &state,
+                     std::int64_t expires_at = 0, std::string_view deadline_url = {});
+std::string ReadOAuthWanted();
+void RemoveOAuthOutput();
 
 std::string EnvironmentPath(const char *name, std::string_view fallback) {
   const char *value = std::getenv(name);
@@ -147,7 +155,16 @@ std::string Executable(std::string_view name) {
   return std::string(name);
 }
 
+bool RuntimeReady(std::string &error) {
+  if (access(Executable("netbird").c_str(), X_OK) != 0) {
+    error = "NetBird runtime is missing or not executable; reinstall the runtime package";
+    return false;
+  }
+  return true;
+}
+
 [[noreturn]] void Exec(std::vector<std::string> arguments) {
+  events::ChildSignals();
   std::vector<char *> values;
   values.reserve(arguments.size() + 1);
   for (std::string &argument : arguments)
@@ -217,9 +234,7 @@ int RunCommandAndLinger(std::vector<std::string> arguments,
     }
   }
   const int result = WIFEXITED(status) ? WEXITSTATUS(status) : 1;
-  if (result == 0)
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-  else
+  if (result != 0)
     error = "NetBird browser login failed";
   return result;
 }
@@ -265,14 +280,7 @@ void AddConnectionArguments(std::vector<std::string> &arguments,
 }
 
 bool WaitForSocket(std::string &error) {
-  const std::string socket = SocketPath() + "/netbird.sock";
-  for (int attempt = 0; attempt < 100 && !std::filesystem::exists(socket);
-       ++attempt)
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  if (std::filesystem::exists(socket))
-    return true;
-  error = "NetBird daemon socket did not become ready";
-  return false;
+  return events::WaitForSocket(SocketPath() + "/netbird.sock", error);
 }
 
 std::string ObjectString(json_object *object, const char *name) {
@@ -422,6 +430,20 @@ std::string OAuthOutputURL() {
   return url;
 }
 
+std::string OAuthOutputCode() {
+  std::string output, ignored;
+  if (!ReadFile(DataPath() + "/oauth-output", true, output, ignored)) return {};
+  constexpr std::string_view marker = "and enter the code ";
+  const auto position = output.rfind(marker);
+  const auto login = output.rfind("Use this URL to log in:");
+  if (position == std::string::npos || login == std::string::npos || position < login) return {};
+  const auto begin = position + marker.size();
+  auto end = begin;
+  while (end < output.size() && !std::isspace(static_cast<unsigned char>(output[end]))) ++end;
+  if (end - begin > 64) return {};
+  return output.substr(begin, end - begin);
+}
+
 void PrintJSON(json_object *response) {
   std::cout << json_object_to_json_string_ext(response, JSON_C_TO_STRING_PLAIN)
             << '\n';
@@ -457,10 +479,16 @@ void PrintStatus() {
                          json_object_new_string(management_url.c_str()));
   json_object_object_add(response, "managementConnected",
                          json_object_new_boolean(management_connected));
-  const std::string auth_url =
-      daemon_status == "Connected" ? std::string() : OAuthOutputURL();
+  const auto authorization = ReadAuthorization(daemon_status == "Connected");
+  json_object_object_add(response, "authWindowSeconds", json_object_new_int(events::AuthWindowSeconds));
+  json_object_object_add(response, "authExpiresAt", json_object_new_int64(authorization.expires_at));
+  const std::string &auth_url = authorization.url;
   json_object_object_add(response, "authURL",
                          json_object_new_string(auth_url.c_str()));
+  json_object_object_add(response, "authState",
+                         json_object_new_string(authorization.state.c_str()));
+  const std::string auth_code = authorization.state == "pending" ? OAuthOutputCode() : "";
+  json_object_object_add(response, "authCode", json_object_new_string(auth_code.c_str()));
   if (status != nullptr)
     json_object_put(status);
   PrintJSON(response);
@@ -510,6 +538,68 @@ std::string ReadOAuthWanted() {
   return data;
 }
 
+void WriteOAuthState(const std::string &token, const std::string &state,
+                     std::int64_t expires_at, std::string_view deadline_url) {
+  const std::string path = DataPath() + "/oauth-state";
+  const std::string temp = path + "." + std::to_string(getpid());
+  {
+    std::ofstream output(temp, std::ios::trunc);
+    output << token << '\n' << state << '\n' << expires_at << '\n' << deadline_url << '\n';
+    if (!output) return;
+  }
+  (void)chmod(temp.c_str(), 0600);
+  (void)rename(temp.c_str(), path.c_str());
+}
+
+AuthorizationState ReadAuthorization(bool connected) {
+  if (connected) return {"idle", ""};
+  const std::string token = ReadOAuthWanted();
+  if (token.empty()) return {"idle", ""};
+  std::ifstream input(DataPath() + "/oauth-state");
+  std::string owner, state;
+  std::getline(input, owner);
+  std::getline(input, state);
+  if (owner != token) return {"starting", ""};
+  if (state == "starting") {
+    const std::string url = OAuthOutputURL();
+    std::string expiry, deadline_url;
+    std::getline(input, expiry);
+    std::getline(input, deadline_url);
+    char *end = nullptr;
+    const auto parsed = std::strtoll(expiry.c_str(), &end, 10);
+    const std::int64_t expires_at = !expiry.empty() && end && *end == '\0' && parsed > 0 && deadline_url == url ? parsed : 0;
+    return url.empty() ? AuthorizationState{"starting", ""} : AuthorizationState{"pending", url, expires_at};
+  }
+  if (state == "connecting" || state == "failed" || state == "expired" || state == "timed-out") return {state, ""};
+  return {"idle", ""};
+}
+
+std::string OAuthFailure() {
+  std::string output, ignored;
+  ReadFile(DataPath() + "/oauth-output", true, output, ignored);
+  for (char &ch : output) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+  // WaitSSOLogin's deadline comes from the IdP device-code window, not a
+  // controller timer. Other RPC/network deadlines do not prove code expiry.
+  if (output.find("waiting sso login failed with:") != std::string::npos &&
+      output.find("context deadline exceeded") != std::string::npos) return "expired";
+  if (output.find("expired_token") != std::string::npos ||
+      output.find("code expired") != std::string::npos ||
+      output.find("code has expired") != std::string::npos ||
+      output.find("link expired") != std::string::npos ||
+      output.find("authorization expired") != std::string::npos) return "expired";
+  if (output.find("deadline exceeded") != std::string::npos ||
+      output.find("timed out") != std::string::npos ||
+      output.find("timeout waiting for tailscale service") != std::string::npos) return "timed-out";
+  return "failed";
+}
+
+void NotifyScreen() {
+  std::string ignored;
+  RunCommandCapture({EnvironmentPath("ONEKVM_SCREEN_NOTIFY", "/usr/bin/busctl"),
+    "--system", "--auto-start=no", "--timeout=1", "call", "org.onekvm.ScreenDisplay",
+    "/org/onekvm/ScreenDisplay", "org.onekvm.ScreenDisplay", "Refresh"}, ignored);
+}
+
 void RemoveOAuthOutput() {
   std::error_code ignored;
   std::filesystem::remove(DataPath() + "/oauth-output", ignored);
@@ -537,24 +627,44 @@ pid_t Spawn(int (*fn)(std::string &), std::string &error) {
     return -1;
   }
   if (pid == 0) {
+    events::ChildSignals();
+    (void)setpgid(0, 0);
     std::string child_error;
     const int result = fn(child_error);
     if (result != 0 && !child_error.empty())
       std::cerr << "onekvm-netbird-controller: " << child_error << '\n';
     std::_Exit(result == 0 ? 0 : 1);
   }
+  (void)setpgid(pid, pid);
   return pid;
 }
 
 int Connect(std::string &error) {
+  if (!RuntimeReady(error)) return 1;
   if (!SetStateDirectory(error))
     return 1;
-  std::ofstream output(OAuthWantedPath(), std::ios::trunc);
+  events::AuthorizationLock lock(DataPath());
+  if (lock.fd < 0) { error = "lock authorization request"; return 1; }
+  const auto authorization = ReadAuthorization(false);
+  if (authorization.state == "starting" || authorization.state == "pending" || authorization.state == "connecting") {
+    json_object *response = json_object_new_object();
+    json_object_object_add(response, "started", json_object_new_boolean(0));
+    json_object_object_add(response, "alreadyPending", json_object_new_boolean(1));
+    PrintJSON(response);
+    return 0;
+  }
+  const std::string pending = OAuthWantedPath() + "." + std::to_string(getpid());
+  std::ofstream output(pending, std::ios::trunc);
   if (!output) {
     error = "write oauth request";
     return 1;
   }
   output << std::chrono::steady_clock::now().time_since_epoch().count() << '\n';
+  output.close();
+  if (!output || rename(pending.c_str(), OAuthWantedPath().c_str()) != 0) {
+    error = "publish oauth request";
+    return 1;
+  }
   json_object *response = json_object_new_object();
   json_object_object_add(response, "started", json_object_new_boolean(1));
   PrintJSON(response);
@@ -563,6 +673,8 @@ int Connect(std::string &error) {
 
 int RunNamed(std::string_view command, const char *key, bool value,
              std::string &error) {
+  events::AuthorizationLock lock(DataPath());
+  if (lock.fd < 0) { error = "lock authorization request"; return 1; }
   RemoveOAuthWanted();
   if (!SetStateDirectory(error) || !WaitForSocket(error))
     return 1;
@@ -581,54 +693,111 @@ int RunNamed(std::string_view command, const char *key, bool value,
   return 0;
 }
 
-int Service(std::string &error) {
-  const pid_t daemon = Spawn(Run, error);
-  if (daemon < 0)
-    return 1;
-  if (!WaitForSocket(error)) {
-    kill(daemon, SIGTERM);
-    WaitPid(daemon);
-    return 1;
+void StopChild(pid_t &pid) {
+  if (pid > 0) {
+    (void)kill(-pid, SIGTERM);
+    (void)WaitPid(pid);
+    pid = -1;
   }
-  const pid_t apply = Spawn(Apply, error);
-  if (apply > 0)
-    WaitPid(apply);
+}
 
-  pid_t oauth = -1;
+int Service(std::string &error) {
+  if (!RuntimeReady(error)) return 78; // EX_CONFIG: repair missing packages.
+  events::Watch watch(DataPath(), SocketPath());
+  events::AuthorizationDeadline deadline;
+  if (!watch.valid() || deadline.fd < 0) { error = "create service event subscriptions"; return 1; }
   std::string oauth_token;
+  {
+    events::AuthorizationLock lock(DataPath());
+    if (lock.fd < 0) { error = "lock authorization recovery"; return 1; }
+    oauth_token = ReadOAuthWanted();
+    const auto previous = ReadAuthorization(false);
+    // A new supervisor cannot resume an old login process or its monotonic
+    // deadline. Retire interrupted requests; never replay terminal requests.
+    if (previous.state == "starting" || previous.state == "pending" || previous.state == "connecting")
+      WriteOAuthState(oauth_token, "failed");
+    RemoveOAuthOutput();
+  }
+  pid_t daemon = Spawn(Run, error);
+  if (daemon < 0) return 1;
+  pid_t apply = Spawn(Apply, error);
+  pid_t oauth = -1;
+  std::string authorization_url;
+  events::Stream stream;
   for (;;) {
-    int status = 0;
-    const pid_t ended = waitpid(-1, &status, WNOHANG);
-    if (ended < 0 && errno != EINTR) {
-      error = "wait: " + std::string(std::strerror(errno));
-      return 1;
-    }
-    if (ended == daemon) {
-      if (oauth > 0) {
-        kill(oauth, SIGTERM);
-        WaitPid(oauth);
-      }
-      error = "netbird exited";
-      return WIFEXITED(status) ? WEXITSTATUS(status) : 1;
-    }
-    if (ended == oauth)
-      oauth = -1;
-
     const std::string wanted = ReadOAuthWanted();
     if (wanted != oauth_token) {
-      if (oauth > 0) {
-        kill(oauth, SIGTERM);
-        WaitPid(oauth);
-        oauth = -1;
-      }
+      deadline.clear();
+      authorization_url.clear();
+      StopChild(oauth);
+      RemoveOAuthOutput();
       oauth_token = wanted;
       if (!wanted.empty()) {
+        WriteOAuthState(wanted, "starting");
         oauth = Spawn(RunOAuth, error);
-        if (oauth < 0)
-          oauth = -1;
+        if (oauth < 0) WriteOAuthState(wanted, "failed");
+      }
+      NotifyScreen();
+    }
+    stream.open(SocketPath() + "/netbird-http.sock", "POST /daemon.DaemonService/SubscribeStatus HTTP/1.0\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: 50\r\n\r\n{\"getFullPeerStatus\":true,\"shouldRunProbes\":false}");
+    pollfd fds[] = {{watch.files, POLLIN, 0}, {watch.signals, POLLIN, 0}, {stream.fd, POLLIN, 0}, {deadline.fd, POLLIN, 0}};
+    if (poll(fds, 4, stream.timeout()) < 0) {
+      if (errno == EINTR) continue;
+      error = "wait for service events";
+      StopChild(oauth); StopChild(apply); StopChild(daemon);
+      return 1;
+    }
+    bool changed = watch.drainFiles();
+    if (watch.stopping()) {
+      StopChild(oauth); StopChild(apply); StopChild(daemon);
+      RemoveOAuthOutput();
+      return 0;
+    }
+    int status = 0;
+    for (pid_t ended; (ended = waitpid(-1, &status, WNOHANG)) > 0;) {
+      if (ended == daemon) {
+        daemon = -1;
+        StopChild(oauth); StopChild(apply);
+        error = "daemon exited";
+        return WIFEXITED(status) && WEXITSTATUS(status) == 0 ? 0 : 1;
+      }
+      if (ended == apply) apply = -1;
+      if (ended == oauth) {
+        oauth = -1;
+        const auto auth = ReadAuthorization(false);
+        if (auth.state == "starting" || auth.state == "pending") WriteOAuthState(oauth_token, "failed");
+        RemoveOAuthOutput();
+        changed = true;
       }
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    if (fds[2].revents) changed = stream.read() || changed;
+    // Bind the one-shot window to the current request and URL, never to an App view.
+    const auto auth = ReadAuthorization(false);
+    if (oauth > 0 && !oauth_token.empty() && ReadOAuthWanted() == oauth_token && auth.state == "pending") {
+      if (authorization_url != auth.url) {
+        authorization_url = auth.url;
+        if (!deadline.arm()) {
+          error = "arm authorization expiry event";
+          StopChild(oauth); StopChild(apply); StopChild(daemon);
+          RemoveOAuthOutput();
+          return 1;
+        }
+        WriteOAuthState(oauth_token, "starting", events::AuthorizationDeadline::expiresAt(), authorization_url);
+        changed = true;
+      }
+      if (deadline.expired()) {
+        StopChild(oauth);
+        WriteOAuthState(oauth_token, "expired");
+        RemoveOAuthOutput();
+        deadline.clear();
+        authorization_url.clear();
+        changed = true;
+      }
+    } else if (!authorization_url.empty()) {
+      deadline.clear();
+      authorization_url.clear();
+    }
+    if (changed) NotifyScreen();
   }
 }
 
@@ -669,6 +838,8 @@ int Apply(std::string &error) {
 }
 
 int RunOAuth(std::string &error) {
+  const std::string token = ReadOAuthWanted();
+  WriteOAuthState(token, "starting");
   Settings settings;
   if (!LoadSettings(false, settings, error) || !SetStateDirectory(error) ||
       !WaitForSocket(error))
@@ -693,8 +864,13 @@ int RunOAuth(std::string &error) {
     arguments.push_back("--hostname=" + settings.hostname);
   if (!settings.management_url.empty())
     arguments.push_back("--management-url=" + settings.management_url);
-  if (RunCommandAndLinger(std::move(arguments), error) != 0)
+  if (RunCommandAndLinger(std::move(arguments), error) != 0) {
+    WriteOAuthState(token, OAuthFailure());
+    RemoveOAuthOutput();
     return 1;
+  }
+  WriteOAuthState(token, "connecting");
+  RemoveOAuthOutput();
 
   // Login only enrolls the peer. Bring the tunnel up after authentication has
   // completed so the daemon never receives an empty setup key as an `up`
@@ -702,7 +878,9 @@ int RunOAuth(std::string &error) {
   arguments = CLI();
   arguments.push_back("up");
   AddConnectionArguments(arguments, settings);
-  return RunCommandAndLinger(std::move(arguments), error);
+  const int result = RunCommandAndLinger(std::move(arguments), error);
+  WriteOAuthState(token, result == 0 ? "idle" : "failed");
+  return result;
 }
 
 } // namespace
@@ -727,7 +905,7 @@ int main(int argc, char **argv) {
     result = RunNamed("deregister", "loggedOut", true, error);
   } else if (command == "--health") {
     Settings settings;
-    result = LoadSettings(true, settings, error) ? 0 : 1;
+    result = LoadSettings(true, settings, error) && RuntimeReady(error) ? 0 : 1;
   } else if (command == "--run") {
     result = Run(error);
   } else if (command == "--apply") {

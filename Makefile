@@ -25,3 +25,4 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/screen-app
 	install -Dm0644 $(SCREEN_APP_DIR)/main.vue-vapor.js $(DESTDIR)$(PREFIX)/screen-app/main.vue-vapor.js
 	install -Dm0644 $(SCREEN_APP_DIR)/main.vue-vapor.pak $(DESTDIR)$(PREFIX)/screen-app/main.vue-vapor.pak
+	install -Dm0644 $(SCREEN_APP_DIR)/icon.bin $(DESTDIR)$(PREFIX)/screen-app/icon.bin

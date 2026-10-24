@@ -28,5 +28,13 @@ if(BUILD_TESTING)
   add_test(NAME controller-lifecycle
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tests/controller-test.sh
             $<TARGET_FILE:onekvm-netbird-controller>)
+  if(NOT CMAKE_CROSSCOMPILING)
+    find_package(Python3 COMPONENTS Interpreter QUIET)
+    if(Python3_FOUND)
+      add_test(NAME controller-events COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/service-test.py
+        $<TARGET_FILE:onekvm-netbird-controller> netbird)
+    endif()
+  endif()
 endif()
 
