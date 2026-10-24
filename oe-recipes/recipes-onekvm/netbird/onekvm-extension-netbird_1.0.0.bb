@@ -51,10 +51,13 @@ FILES:${PN} = "\
 "
 FILES:netbird = "${bindir}/netbird"
 RDEPENDS:${PN} += " \
-    netbird \
+    netbird (= ${EXTENDPKGV}) \
     onekvm-kernel-module-wireguard \
     onekvm-kernel-module-netfilter \
 "
+# The controller uses this recipe's SubscribeStatus protocol. Upgrade its
+# runtime together, including debug packages, rather than retaining an older
+# client solely because the unversioned dependency is already installed.
 RREPLACES:netbird += "${PN}-runtime (<= 1.0.0-r1)"
 RCONFLICTS:netbird += "${PN}-runtime (<= 1.0.0-r1)"
 
