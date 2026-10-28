@@ -97,9 +97,6 @@
     "type": "object",
     "additionalProperties": false,
     "required": [
-      "setup_key",
-      "hostname",
-      "management_url",
       "wireguard_port"
     ],
     "properties": {
