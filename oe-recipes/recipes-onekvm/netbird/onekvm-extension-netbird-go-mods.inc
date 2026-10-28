@@ -35,7 +35,7 @@ SRC_URI += "\
     gomod://github.com/coreos/go-iptables;version=v0.7.0;sha256sum=5bee03afe08da1592ebd691c09ab8a3669ad050552682f3a17aff426f3ecc55f \
     gomod://github.com/creack/pty;version=v1.1.24;sha256sum=754e25253e76a5583b80d57d3add3afe68fc4d9f2a490968a9d1eda8c8fd8815 \
     gomod://github.com/fsnotify/fsnotify;version=v1.9.0;sha256sum=94e64824b23591b7aa504e3321d5ec3f57de88f4d49882eaefbbf6820dab746e \
-    gomod://github.com/gliderlabs/ssh;version=v0.3.8;sha256sum=3e9697b8a4c4aff1916002ed8cd2da5b9f356fadf8b230af094c9bf0c5d238f6 \
+    gomod://github.com/gliderlabs/ssh;version=v0.3.9-0.20250127223818-909fa952d4e4;sha256sum=a1699a9fa189bc17b0e7d0a85e7e08ccccae409a9e52106e97a14176ee710839 \
     gomod://github.com/goccy/go-yaml;version=v1.19.2;sha256sum=9ea8b466385c1ecf61fa55b68e409ea048b3d7fb1178eba66c1e24a7a30dfffb \
     gomod://github.com/godbus/dbus/v5;version=v5.2.2;sha256sum=5c6f37c725a481fb0f1e7866ae273429525d8cc6a6cace87da28e53370f5596a \
     gomod://github.com/golang/protobuf;version=v1.5.4;sha256sum=9a2f43d3eac8ceda506ebbeb4f229254b87235ce90346692a0e233614182190b \
@@ -90,7 +90,7 @@ SRC_URI += "\
     gomod://github.com/prometheus/client_model;version=v0.6.2;sha256sum=67017b19f220c6ab91ecfdd10a93824e2a8b09fcb6390054dbdc49df3354a9ca \
     gomod://github.com/prometheus/common;version=v0.67.5;sha256sum=9baf08bc138d7097af80f61572b32eeac40727d91e29ea447cb059d0ce57e1a6 \
     gomod://github.com/prometheus/procfs;version=v0.19.2;sha256sum=354e627c196c228369c9e97bca5ff59d8ce2b338756de249d8d343226424c76f \
-    gomod://github.com/quic-go/quic-go;version=v0.62.0;sha256sum=92beca3d3ef957b4d9de3b11d28acb7e6fdb98603111ca4a74139ae7e2a618f3 \
+    gomod://github.com/quic-go/quic-go;version=v0.64.0;sha256sum=0890cee71e7bf68691a3cd9072d99f2054419a1b76fa9621eba1626a91339dc1 \
     gomod://github.com/shirou/gopsutil/v4;version=v4.25.8;sha256sum=c79f74d9e5466578ffcb6031e02424e4687b60cf86b25bf5edafcd3310db9be5 \
     gomod://github.com/sirupsen/logrus;version=v1.9.4;sha256sum=3847d00c5ee6948f1ff0d0120bc343c55ce852becb7720f8f08f53eecfe9e437 \
     gomod://github.com/skratchdot/open-golang;version=v0.0.0-20200116055534-eef842397966;sha256sum=3ad7f856621f78b370a47bb05ce12c31bdee1014e596b7f565ee20dc8ac80c66 \

@@ -39,7 +39,7 @@ LIC_FILES_CHKSUM += "\
     file://pkg/mod/github.com/coreos/go-iptables@v0.7.0/LICENSE;md5=19cbd64715b51267a47bf3750cc6a8a5;spdx=Apache-2.0 \
     file://pkg/mod/github.com/creack/pty@v1.1.24/LICENSE;md5=93958070863d769117fa33b129020050;spdx=MIT \
     file://pkg/mod/github.com/fsnotify/fsnotify@v1.9.0/LICENSE;md5=8bae8b116e2cfd723492b02d9a212fe2;spdx=BSD-3-Clause \
-    file://pkg/mod/github.com/gliderlabs/ssh@v0.3.8/LICENSE;md5=ac631f842784b8ec269293a49121236b;spdx=BSD-3-Clause \
+    file://pkg/mod/github.com/gliderlabs/ssh@v0.3.9-0.20250127223818-909fa952d4e4/LICENSE;md5=ac631f842784b8ec269293a49121236b;spdx=BSD-3-Clause \
     file://pkg/mod/github.com/goccy/go-yaml@v1.19.2/LICENSE;md5=346470d8ac0a6ffe1eb8635a452cec2b;spdx=MIT \
     file://pkg/mod/github.com/godbus/dbus/v5@v5.2.2/LICENSE;md5=09042bd5c6c96a2b9e45ddf1bc517eed;spdx=BSD-2-Clause \
     file://pkg/mod/github.com/golang/protobuf@v1.5.4/LICENSE;md5=939cce1ec101726fa754e698ac871622;spdx=BSD-3-Clause \
@@ -97,7 +97,7 @@ LIC_FILES_CHKSUM += "\
     file://pkg/mod/github.com/prometheus/client_model@v0.6.2/LICENSE;md5=86d3f3a95c324c9479bd8986968f4327;spdx=Apache-2.0 \
     file://pkg/mod/github.com/prometheus/common@v0.67.5/LICENSE;md5=86d3f3a95c324c9479bd8986968f4327;spdx=Apache-2.0 \
     file://pkg/mod/github.com/prometheus/procfs@v0.19.2/LICENSE;md5=86d3f3a95c324c9479bd8986968f4327;spdx=Apache-2.0 \
-    file://pkg/mod/github.com/quic-go/quic-go@v0.62.0/LICENSE;md5=357080a3c7c0a7c4e23100893c301235;spdx=MIT \
+    file://pkg/mod/github.com/quic-go/quic-go@v0.64.0/LICENSE;md5=357080a3c7c0a7c4e23100893c301235;spdx=MIT \
     file://pkg/mod/github.com/shirou/gopsutil/v4@v4.25.8/LICENSE;md5=ae6de3dee02712a1e55b280671be53bf;spdx=BSD-3-Clause \
     file://pkg/mod/github.com/sirupsen/logrus@v1.9.4/LICENSE;md5=8dadfef729c08ec4e631c4f6fc5d43a0;spdx=MIT \
     file://pkg/mod/github.com/skratchdot/open-golang@v0.0.0-20200116055534-eef842397966/LICENSE;md5=bda6b231b2cd2a50379525e90c9e5040;spdx=MIT \
