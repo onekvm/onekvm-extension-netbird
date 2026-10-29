@@ -313,7 +313,7 @@
       .nb-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px 22px; }
       .nb-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 13px; }
       .nb-value, .nb-settings > label, .nb-grid > label { display: grid; gap: 7px; min-width: 0; }
-      .nb-value code, .nb-auth > code { overflow-wrap: anywhere; color: var(--n-text-color-1, #e5e7eb); font-family: var(--onekvm-font-mono, ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace); font-size: 13px; font-feature-settings: "tnum" 1, "zero" 1; font-variant-numeric: tabular-nums slashed-zero; font-weight: 500; line-height: 1.5; letter-spacing: .01em; }
+      .nb-value code, .nb-auth > code { overflow-wrap: anywhere; color: var(--foreground, currentColor); font-family: var(--onekvm-font-mono, ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace); font-size: 13px; font-feature-settings: "tnum" 1, "zero" 1; font-variant-numeric: tabular-nums slashed-zero; font-weight: 500; line-height: 1.5; letter-spacing: .01em; }
       .nb-value small, .nb-settings small, .nb-muted { color: var(--n-text-color-3, #888); }
       .nb-auth { display: grid; gap: 9px; padding: 12px; border-radius: 7px; background: var(--n-color-modal, rgba(127,127,127,.08)); }
       .nb-auth code { overflow-wrap: anywhere; }
