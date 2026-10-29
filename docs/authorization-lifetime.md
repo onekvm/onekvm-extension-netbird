@@ -71,3 +71,17 @@ OneKVM 对两个提供方统一限制 **300 秒**：从当前 URL 首次可用�
 - [所用 Dex 的五分钟默认值](https://github.com/netbirdio/dex/blob/a163de3129e5/server/server.go#L370)
 - [NetBird 的 Dex 配置覆盖](https://github.com/netbirdio/netbird/blob/bb90c9787a8a3591bcb3cccd106a024d1a30b0ef/idp/dex/config.go#L631)
 - [官方设备会话过期说明](https://docs.netbird.io/manage/settings/enforce-periodic-user-authentication)
+
+## Web 密钥连接
+
+在扩展页面点击“使用密钥连接”，在弹窗粘贴密钥并点击“连接”。连接前保存
+当前服务器与网络选项；成功后关闭弹窗，失败时保留输入供重试。取消未提交的
+输入不会保存密钥；取消正在进行的连接会终止本次尝试。关闭弹窗时清空输入。
+
+`connect_key` 方法使用已保存的密钥发起连接，由同一个后台监督进程负责状态、
+失败和取消；它不生成浏览器登录链接。同一密钥可直接重试，不依赖再次修改设置。
+配置重载自动发起的密钥连接会由显式尝试接管，避免两个连接进程同时运行。
+浏览器连接会先清除旧密钥，避免同时触发旧密钥注册。
+
+前端交互回归：`node tests/page.test.cjs`；后台事件回归沿用
+`tests/service-test.py`，覆盖密钥校验、失败、成功、重试、取消和密钥文件权限。

@@ -51,6 +51,15 @@ def daemon():
 if 'service' in sys.argv or Path(sys.argv[0]).name=='tailscaled':daemon()
 elif 'status' in sys.argv:print(statefile.read_text())
 elif 'login' in sys.argv or 'up' in sys.argv:
+    keyarg=next((arg for arg in sys.argv if arg.startswith('--setup-key-file=') or arg.startswith('--auth-key=file:')),None)
+    if keyarg:
+        secret=Path(keyarg.split('=',1)[1].removeprefix('file:')).read_text()
+        (data/'key-arguments').write_text(json.dumps(sys.argv[1:]))
+        with (data/'key-pids').open('a') as f:f.write(str(os.getpid())+'\n')
+        if secret=='test-invalid':print('invalid key',flush=True);sys.exit(1)
+        if secret=='test-wait':threading.Event().wait()
+        transition({'status':'Connected','netbirdIp':'100.64.0.1'} if p=='netbird' else {'BackendState':'Running','Self':{'TailscaleIPs':['100.64.0.1']}})
+        sys.exit(0)
     if 'up' in sys.argv and p=='netbird':transition({'status':'Connected'});sys.exit(0)
     if p=='tailscale':transition({'BackendState':'NeedsLogin'})
     with (data/'login-pids').open('a') as f:f.write(str(os.getpid())+'\n')
@@ -101,6 +110,9 @@ def test(binary, provider):
             service=subprocess.Popen([str(binary),'--service'],env=env,stdout=log,stderr=log)
             try:
                 until(lambda:(data/'requests').exists() and 'stream' in (data/'requests').read_text(),'initial status subscription')
+                missing=subprocess.run([str(binary),'connect-key'],env=env,text=True,capture_output=True)
+                assert missing.returncode!=0 and 'key is required' in missing.stderr
+                assert not (data/'oauth-wanted').exists(),'empty key created an authorization request'
                 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
                     starts=list(pool.map(lambda _:run('connect'),range(5)))
                 assert sum(result['started'] for result in starts)==1,'concurrent Connect calls spawned multiple sessions'
@@ -196,6 +208,57 @@ def test(binary, provider):
                 assert run('connect')['started']
                 until(lambda:phase('pending'),'manual retry after interruption')
                 run('disconnect')
+                # Key enrollment never creates a browser login and can retry the
+                # same stored settings without requiring a configuration change.
+                browser_count=len((data/'login-pids').read_text().splitlines())
+                keyfield='setup_key' if provider=='netbird' else 'auth_key'
+                settings[keyfield]='test-invalid'
+                (config/'config.json').write_text(json.dumps(settings))
+                assert run('connect-key')['started']
+                failed=until(lambda:phase('failed'),'invalid key failure')
+                assert failed['authURL']==''
+                settings[keyfield]='test-success'
+                (config/'config.json').write_text(json.dumps(settings))
+                assert run('connect-key')['started']
+                until(lambda:(r if (r:=run('status')) and (r.get('daemonStatus')=='Connected' if provider=='netbird' else r.get('backendState')=='Running') else None),'key enrollment success')
+                until(lambda:phase('idle'),'key completion event')
+                secretfile=data/('setup-key' if provider=='netbird' else 'auth-key')
+                assert secretfile.stat().st_mode & 0o777==0o600
+                args=json.loads((data/'key-arguments').read_text())
+                assert 'test-success' not in ' '.join(args),'secret leaked into command line'
+                assert any(arg.startswith('--setup-key-file=' if provider=='netbird' else '--auth-key=file:') for arg in args)
+                run('disconnect')
+                settings[keyfield]='test-wait'
+                (config/'config.json').write_text(json.dumps(settings))
+                for _ in range(2):
+                    count=len((data/'key-pids').read_text().splitlines())
+                    assert run('connect-key')['started']
+                    until(lambda:len((data/'key-pids').read_text().splitlines())>count,'pending key attempt')
+                    pending=until(lambda:phase('connecting'),'key connecting state')
+                    assert pending['authURL']==''
+                    request=(data/'oauth-wanted').read_text()
+                    assert request.startswith('key:')
+                    for command in ['connect-key','connect']:
+                        duplicate=run(command)
+                        assert not duplicate['started'] and duplicate['alreadyPending']
+                    assert (data/'oauth-wanted').read_text()==request
+                    child=int((data/'key-pids').read_text().splitlines()[-1])
+                    run('disconnect')
+                    childstat=Path(f'/proc/{child}/stat')
+                    until(lambda:not childstat.exists() or childstat.read_text().split()[2]=='Z','key cancellation')
+                # A settings reload may already have launched lifecycle Apply.
+                # An explicit attempt replaces it instead of enrolling twice.
+                count=len((data/'key-pids').read_text().splitlines())
+                restart_service()
+                until(lambda:len((data/'key-pids').read_text().splitlines())>count,'lifecycle key apply after reload')
+                lifecycle_child=int((data/'key-pids').read_text().splitlines()[-1])
+                count=len((data/'key-pids').read_text().splitlines())
+                assert run('connect-key')['started']
+                until(lambda:len((data/'key-pids').read_text().splitlines())>count,'explicit key attempt after reload')
+                childstat=Path(f'/proc/{lifecycle_child}/stat')
+                until(lambda:not childstat.exists() or childstat.read_text().split()[2]=='Z','replacement of lifecycle apply')
+                run('disconnect')
+                assert len((data/'login-pids').read_text().splitlines())==browser_count,'key enrollment started browser authentication'
                 assert service.poll() is None,'supervisor exited during authorization'
             finally:
                 service.send_signal(signal.SIGTERM)
@@ -203,7 +266,7 @@ def test(binary, provider):
                 except subprocess.TimeoutExpired:service.kill();service.wait();raise
                 if service.returncode:print((root/'service.log').read_text(),file=sys.stderr)
             assert service.returncode==0
-    print(provider+': pending/replacement/rotation/expiry/timeout/failure/completion/cancellation/idle event tests passed')
+    print(provider+': browser and key enrollment/retry/failure/cancellation/secret handling/event tests passed')
 
 if __name__=='__main__':
     test(Path(sys.argv[1]).resolve(),sys.argv[2])

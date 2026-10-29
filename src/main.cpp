@@ -639,8 +639,16 @@ pid_t Spawn(int (*fn)(std::string &), std::string &error) {
   return pid;
 }
 
-int Connect(std::string &error) {
+int Connect(std::string &error, bool use_key = false) {
   if (!RuntimeReady(error)) return 1;
+  if (use_key) {
+    Settings settings;
+    if (!LoadSettings(false, settings, error)) return 1;
+    if (settings.setup_key.find_first_not_of(" \t\r\n") == std::string::npos) {
+      error = "NetBird setup key is required";
+      return 1;
+    }
+  }
   if (!SetStateDirectory(error))
     return 1;
   events::AuthorizationLock lock(DataPath());
@@ -659,6 +667,7 @@ int Connect(std::string &error) {
     error = "write oauth request";
     return 1;
   }
+  if (use_key) output << "key:";
   output << std::chrono::steady_clock::now().time_since_epoch().count() << '\n';
   output.close();
   if (!output || rename(pending.c_str(), OAuthWantedPath().c_str()) != 0) {
@@ -733,8 +742,12 @@ int Service(std::string &error) {
       RemoveOAuthOutput();
       oauth_token = wanted;
       if (!wanted.empty()) {
-        WriteOAuthState(wanted, "starting");
-        oauth = Spawn(RunOAuth, error);
+        const bool use_key = wanted.rfind("key:", 0) == 0;
+        // Settings reload may have started Apply already. Keep one enrollment
+        // child and supervise retries/cancellation through the same request.
+        if (use_key) StopChild(apply);
+        WriteOAuthState(wanted, use_key ? "connecting" : "starting");
+        oauth = Spawn(use_key ? Apply : RunOAuth, error);
         if (oauth < 0) WriteOAuthState(wanted, "failed");
       }
       NotifyScreen();
@@ -765,7 +778,8 @@ int Service(std::string &error) {
       if (ended == oauth) {
         oauth = -1;
         const auto auth = ReadAuthorization(false);
-        if (auth.state == "starting" || auth.state == "pending") WriteOAuthState(oauth_token, "failed");
+        if (auth.state == "starting" || auth.state == "pending" || auth.state == "connecting")
+          WriteOAuthState(oauth_token, oauth_token.rfind("key:", 0) == 0 && WIFEXITED(status) && WEXITSTATUS(status) == 0 ? "idle" : "failed");
         RemoveOAuthOutput();
         changed = true;
       }
@@ -891,7 +905,7 @@ int main(int argc, char **argv) {
   const std::string_view command = argc >= 2 ? argv[1] : "--service";
   if (argc > 2) {
     error = "usage: onekvm-netbird-controller "
-            "[--service|status|connect|disconnect|logout|--health|--run|--apply|--oauth]";
+            "[--service|status|connect|connect-key|disconnect|logout|--health|--run|--apply|--oauth]";
   } else if (command == "--service") {
     result = Service(error);
   } else if (command == "status") {
@@ -899,6 +913,8 @@ int main(int argc, char **argv) {
     result = 0;
   } else if (command == "connect") {
     result = Connect(error);
+  } else if (command == "connect-key") {
+    result = Connect(error, true);
   } else if (command == "disconnect") {
     result = RunNamed("down", "connected", false, error);
   } else if (command == "logout") {
@@ -914,7 +930,7 @@ int main(int argc, char **argv) {
     result = RunOAuth(error);
   } else {
     error = "usage: onekvm-netbird-controller "
-            "[--service|status|connect|disconnect|logout|--health|--run|--apply|--oauth]";
+            "[--service|status|connect|connect-key|disconnect|logout|--health|--run|--apply|--oauth]";
   }
   if (result != 0)
     std::cerr << "onekvm-netbird-controller: " << error << '\n';

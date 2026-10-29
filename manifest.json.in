@@ -77,6 +77,13 @@
       ]
     },
     {
+      "name": "connect_key",
+      "command": [
+        "bin/onekvm-netbird-controller",
+        "connect-key"
+      ]
+    },
+    {
       "name": "disconnect",
       "command": [
         "bin/onekvm-netbird-controller",
