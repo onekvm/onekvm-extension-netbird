@@ -1,0 +1,44 @@
+name: Check NetBird release
+
+on:
+  schedule:
+    - cron: "37 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: netbird-version-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out the extension
+        uses: actions/checkout@v4
+
+      - name: Check and update the pinned client release
+        id: update
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/check-netbird-version.py --update
+
+      - name: Open a pull request for a new release
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ github.token }}
+          base: main
+          branch: automation/netbird-version
+          delete-branch: true
+          commit-message: "build(netbird): update client to ${{ steps.update.outputs.version }}"
+          title: "build(netbird): update client to ${{ steps.update.outputs.version }}"
+          body: |
+            This pull request was opened by the daily NetBird release check.
+
+            It updates the pinned NetBird client version and upstream source revision. The OneKVM extension package version remains unchanged.
+
+            Please regenerate and review the checked Go module and license metadata before merging.
