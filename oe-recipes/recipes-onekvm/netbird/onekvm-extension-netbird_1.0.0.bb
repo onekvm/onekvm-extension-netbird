@@ -54,6 +54,7 @@ RDEPENDS:${PN} += " \
     netbird (= ${EXTENDPKGV}) \
     onekvm-kernel-module-wireguard \
     onekvm-kernel-module-netfilter \
+    onekvm-extension-dedicated-account \
 "
 # The controller uses this recipe's SubscribeStatus protocol. Upgrade its
 # runtime together, including debug packages, rather than retaining an older
