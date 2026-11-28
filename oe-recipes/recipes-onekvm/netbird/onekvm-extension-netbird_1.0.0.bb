@@ -10,7 +10,7 @@ LIC_FILES_CHKSUM = "\
 "
 PR = "r12"
 
-NETBIRD_VERSION = "0.81.5"
+NETBIRD_VERSION = "0.84.0"
 GO_IMPORT = "github.com/netbirdio/netbird"
 GO_INSTALL = "${GO_IMPORT}/client"
 GO_EXTRA_LDFLAGS += "-X ${GO_IMPORT}/version.version=${NETBIRD_VERSION}"
@@ -22,7 +22,7 @@ SRC_URI = "\
     git://github.com/netbirdio/netbird.git;protocol=https;nobranch=1;name=upstream;destsuffix=${GO_SRCURI_DESTSUFFIX} \
 "
 SRCREV_extension = "${ONEKVM_COMPONENT_SRCREV}"
-SRCREV_upstream = "396976b8be081fbf0d3d959698352585e80618e3"
+SRCREV_upstream = "22eac80ddcb056b2c4738309240bda2711bafd98"
 SRCREV_FORMAT = "extension_upstream"
 S = "${UNPACKDIR}/extension"
 
